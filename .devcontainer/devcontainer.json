@@ -5,8 +5,25 @@
       "label": "Flask Backend",
       "onAutoForward": "openPreview",
       "visibility": "public"
+    },
+    "3000": {
+      "label": "React Frontend",
+      "onAutoForward": "openPreview",
+      "visibility": "public"
     }
   },
-  "forwardPorts": [5000],
-  "postCreateCommand": "pip install -r pdf-backend-python/requirements.txt && python pdf-backend-python/app.py"
+  "forwardPorts": [5000, 3000],
+  "postCreateCommand": "pip install -r pdf-backend-python/requirements.txt && cd pdf-frontend && npm install",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.pythonPath": "/usr/local/bin/python3",
+        "editor.formatOnSave": true
+      },
+      "extensions": [
+        "ms-python.python",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
 }
