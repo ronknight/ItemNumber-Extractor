@@ -1,3 +1,8 @@
+Here’s an updated `README.md` file with additional setup information based on your request. It includes instructions to set ports to public in Codespaces and guidance on killing ports before restarting the servers. Additionally, it provides a refined `.gitignore` section for excluding unnecessary files, including PDFs.
+
+---
+
+```markdown
 <h1 align="center">🔍 <a href="https://github.com/ronknight/ItemNumber-Extractor">ItemNumber-Extractor</a></h1>
 <h4 align="center">🛠️ A Python & React tool for extracting item numbers from PDF files via a Flask and React-powered interface.</h4>
 
@@ -45,7 +50,16 @@ cd ItemNumber-Extractor
 ```
 
 ### GitHub Codespaces Setup
-This project is configured to run in **GitHub Codespaces**. Codespaces automatically installs dependencies and starts the Flask and React servers. Make sure the Dockerfile and `.devcontainer` settings are correct. 
+This project is configured to run in **GitHub Codespaces**. Codespaces automatically installs dependencies and starts the Flask and React servers. Ensure both servers' ports (5000 for Flask and 3000 for React) are set to public:
+
+1. **Port 5000 and 3000 Visibility**:
+   Go to the Codespaces settings panel, locate ports 5000 and 3000, and set both to **public**.
+
+2. **Port Management Reminder**:
+   Before starting the servers, kill any lingering processes on the ports to avoid conflicts:
+   ```bash
+   lsof -ti :5000 -ti :3000 | xargs kill -9
+   ```
 
 ### Manual Setup (Optional)
 If you're running this project locally, ensure both Python and Node.js are installed.
@@ -69,12 +83,7 @@ If you're running this project locally, ensure both Python and Node.js are insta
 In Codespaces, the servers should start automatically. If you’re running locally, start each server as follows:
 
 1. **Start Flask Server (Python)**
-   Make sure port 5000 is free before starting Flask. To kill any existing processes on port 5000:
-   ```bash
-   lsof -ti :5000 | xargs kill -9
-   ```
-
-   Then start the Flask server:
+   Make sure port 5000 is free before starting Flask:
    ```bash
    cd pdf-backend-python
    python3 app.py

@@ -1,20 +1,25 @@
+# app.py
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pdfplumber
 import os
-import re  # <- Add this line to import the 're' module
+import re
+import subprocess
+import logging
+
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
 
 app = Flask(__name__)
-CORS(app)  # Allow cross-origin requests
+CORS(app)
 
-# Directory to temporarily store uploaded files
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Define the route for uploading PDFs
 @app.route('/upload', methods=['POST'])
 def upload_pdf():
+    logging.info("Received file upload request.")
     if 'pdf' not in request.files:
+        logging.error("No PDF file found in the request.")
         return jsonify({'error': 'No PDF uploaded'}), 400
 
     file = request.files['pdf']
@@ -24,15 +29,24 @@ def upload_pdf():
     try:
         # Extract item numbers from the PDF
         item_numbers = extract_item_numbers(file_path)
-        os.remove(file_path)  # Remove the uploaded file after processing
-        return jsonify({'itemNumbers': item_numbers})
+        logging.info(f"Extracted item numbers: {item_numbers}")
+        os.remove(file_path)  # Remove the file after processing
+
+        # Get product titles and Google search links
+        items_with_links = []
+        for item in item_numbers:
+            title = fetch_product_title(item)  # Use Node.js Puppeteer script
+            google_link = f"https://www.google.com/search?q=wholesale%20{title}"
+            items_with_links.append({'item': item, 'title': title, 'google_link': google_link})
+
+        return jsonify({'items': items_with_links})
     except Exception as e:
+        logging.error(f"Error processing the PDF: {e}")
         return jsonify({'error': str(e)}), 500
 
-# Function to extract item numbers using pdfplumber
 def extract_item_numbers(pdf_path):
     item_numbers = []
-    pattern = r'\b\d{5,6}[A-Z]?\b'  # Regex pattern for 5-6 digit numbers with optional letter
+    pattern = r'\b\d{5,6}[A-Z]?\b'  # Regex for item numbers (5-6 digits with optional letter)
 
     try:
         with pdfplumber.open(pdf_path) as pdf:
@@ -42,11 +56,23 @@ def extract_item_numbers(pdf_path):
                     if re.match(pattern, word['text']):
                         item_numbers.append(word['text'])
     except Exception as e:
-        print(f"Error processing the PDF: {e}")  # Print the error message
+        logging.error(f"Error extracting item numbers from PDF: {e}")
         raise e
 
     return item_numbers
 
+def fetch_product_title(item):
+    try:
+        # Call the Node.js script to get the product title
+        result = subprocess.run(["node", "fetchTitle.js", item], capture_output=True, text=True)
+        if result.returncode == 0:
+            return result.stdout.strip()
+        else:
+            logging.error(f"Error in Node.js script for item {item}: {result.stderr}")
+            return f"Error fetching title for {item}"
+    except Exception as e:
+        logging.error(f"Error calling Node.js script: {e}")
+        return f"Error fetching title for {item}"
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-

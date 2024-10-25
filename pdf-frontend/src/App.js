@@ -1,72 +1,59 @@
+// App.js
 import React, { useState } from 'react';
 import axios from 'axios';
 
 const PDFExtractor = () => {
   const [file, setFile] = useState(null);
-  const [itemNumbers, setItemNumbers] = useState([]);
+  const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Handle file upload
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
   };
 
-  // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     if (!file) {
-      setError("Please upload a PDF file before proceeding.");
+      setError("Please upload a PDF file.");
       return;
     }
-
+  
     setError(null);
     const formData = new FormData();
     formData.append('pdf', file);
-
+  
     try {
-      const response = await axios.post('https://fearsome-tomb-6xrppvx4x7f57ww-5000.app.github.dev/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-    });
-      setItemNumbers(response.data.itemNumbers);
-      setIsSubmitted(true);
+      const response = await axios.post('https://shady-spooky-corpse-7jrxx7jrgv3wxj4-5000.app.github.dev/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setItems(response.data.items);
     } catch (err) {
-      setError('Error processing the PDF.');
+      console.error("Error uploading the file:", err);
+      setError('Error uploading the file.');
     }
   };
 
-  // Render the upload form initially
-  if (!isSubmitted) {
-    return (
-      <div>
-        <h1>PDF Item Number Extractor</h1>
-        <form onSubmit={handleSubmit}>
-          <input type="file" accept="application/pdf" onChange={handleFileChange} />
-          <button type="submit">Upload and Extract</button>
-        </form>
-
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </div>
-    );
-  }
-
-  // Render the item numbers after successful submission
   return (
     <div>
-      <h1>Extracted Item Numbers with hyperlink</h1>
-      {itemNumbers.length > 0 ? (
+      <h1>PDF Item Number Extractor</h1>
+      <form onSubmit={handleSubmit}>
+        <input type="file" accept="application/pdf" onChange={handleFileChange} />
+        <button type="submit">Upload and Extract</button>
+      </form>
+
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      {items.length > 0 && (
         <ul>
-          {itemNumbers.map((item, index) => (
-            <li key={index}>{item}</li>
+          {items.map((item, index) => (
+            <li key={index}>
+              <strong>{item.item}</strong> - {item.title} <br />
+              <a href={`https://www.4sgm.com/lsearch.jhtm?cid=&keywords=${item.item}`} target="_blank" rel="noopener noreferrer">Product Link</a>{' '}
+              | <a href={item.google_link} target="_blank" rel="noopener noreferrer">Google Search Link</a>
+            </li>
           ))}
         </ul>
-      ) : (
-        <p>No item numbers found in the PDF.</p>
       )}
-      <button onClick={() => setIsSubmitted(false)}>Upload Another PDF</button>
     </div>
   );
 };
