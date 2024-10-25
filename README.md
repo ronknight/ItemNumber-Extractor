@@ -1,9 +1,4 @@
-Here’s an updated `README.md` file with additional setup information based on your request. It includes instructions to set ports to public in Codespaces and guidance on killing ports before restarting the servers. Additionally, it provides a refined `.gitignore` section for excluding unnecessary files, including PDFs.
-
----
-
-```markdown
-<h1 align="center">🔍 <a href="https://github.com/ronknight/ItemNumber-Extractor">ItemNumber-Extractor</a></h1>
+<h1 align="center"><a href="https://github.com/ronknight/ItemNumber-Extractor">🔍 PDF Item Number Extractor and 🛠️ Links Generator</a></h1>
 <h4 align="center">🛠️ A Python & React tool for extracting item numbers from PDF files via a Flask and React-powered interface.</h4>
 
 <p align="center">
