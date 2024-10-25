@@ -8,12 +8,12 @@
     },
     "3000": {
       "label": "React Frontend",
-      "onAutoForward": "openPreview",
+      "onAutoForward": "openBrowser",
       "visibility": "public"
     }
   },
   "forwardPorts": [5000, 3000],
-  "postCreateCommand": "pip install -r pdf-backend-python/requirements.txt && cd pdf-frontend && npm install",
+  "postCreateCommand": "pip install -r pdf-backend-python/requirements.txt && cd pdf-frontend && npm install && npm run start & cd ../pdf-backend-python && python3 app.py",
   "customizations": {
     "vscode": {
       "settings": {

@@ -11,30 +11,32 @@ const PDFExtractor = () => {
   // Handle file selection
   const handleFileChange = (event) => {
     setFile(event.target.files[0]);
+    setIsSubmitted(false); // Reset previous submission
+    setItemNumbers([]); // Clear previous items
+    setError(null); // Clear any previous errors
   };
 
   // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setIsLoading(true); // Start loading
-    setError(null); // Clear any previous errors
-    setItemNumbers([]); // Reset previous results
-
     if (!file) {
       setError("Please upload a PDF file.");
-      setIsLoading(false); // Stop loading
       return;
     }
 
+    setIsLoading(true);
     const formData = new FormData();
     formData.append('pdf', file);
 
     try {
-      const response = await axios.post('https://shady-spooky-corpse-7jrxx7jrgv3wxj4-5000.app.github.dev/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      // Ensure the request goes to the correct backend endpoint
+      const response = await axios.post(
+        'https://shady-spooky-corpse-7jrxx7jrgv3wxj4-5000.app.github.dev/upload',
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
 
-      // Check if items were received and set state accordingly
+      // Validate response and handle no items found case
       if (response.data.items && response.data.items.length > 0) {
         setItemNumbers(response.data.items);
         setIsSubmitted(true);
@@ -42,9 +44,9 @@ const PDFExtractor = () => {
         setError("No item numbers found in the PDF.");
       }
     } catch (err) {
-      setError('Error uploading the file.');
+      setError("Error uploading the file. Please try again.");
     } finally {
-      setIsLoading(false); // Stop loading after request completion
+      setIsLoading(false);
     }
   };
 
@@ -52,6 +54,7 @@ const PDFExtractor = () => {
     <div>
       <h1>🔍 PDF Item Number Extractor and 🛠️ Links Generator</h1>
       
+      {/* Show form only if no previous submission */}
       {!isSubmitted && (
         <form onSubmit={handleSubmit}>
           <input type="file" accept="application/pdf" onChange={handleFileChange} />
@@ -59,18 +62,20 @@ const PDFExtractor = () => {
         </form>
       )}
       
+      {/* Loading message */}
       {isLoading && <p>Loading... Please wait while we process your file.</p>}
 
+      {/* Display error message */}
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {/* Display results if submitted and item numbers are available */}
+      {/* Display results if available */}
       {isSubmitted && itemNumbers.length > 0 && (
         <div>
-          <h2>Extracted Item Numbers and Google Links:</h2>
+          <h2>Extracted Item Numbers and Links</h2>
           <ul>
             {itemNumbers.map(({ item, title, google_link }, index) => (
               <li key={index}>
-                {item} - <a href={google_link} target="_blank" rel="noopener noreferrer">{title}</a>
+                <strong>{item}</strong>: <a href={google_link} target="_blank" rel="noopener noreferrer">{title}</a>
               </li>
             ))}
           </ul>
