@@ -27,18 +27,17 @@ def upload_pdf():
     file.save(file_path)
 
     try:
-        # Extract item numbers from the PDF
         item_numbers = extract_item_numbers(file_path)
         logging.info(f"Extracted item numbers: {item_numbers}")
-        os.remove(file_path)  # Remove the file after processing
+        os.remove(file_path)
 
-        # Get product titles and Google search links
         items_with_links = []
         for item in item_numbers:
-            title = fetch_product_title(item)  # Use Node.js Puppeteer script
+            title = fetch_product_title(item)
             google_link = f"https://www.google.com/search?q=wholesale%20{title}"
             items_with_links.append({'item': item, 'title': title, 'google_link': google_link})
 
+        logging.info(f"Returning items with links: {items_with_links}")
         return jsonify({'items': items_with_links})
     except Exception as e:
         logging.error(f"Error processing the PDF: {e}")
